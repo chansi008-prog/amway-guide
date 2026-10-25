@@ -1,5 +1,5 @@
 // 소비자 관리 앱 서비스 워커: 앱 파일을 미리 저장해 오프라인에서도 열리게 한다
-const VERSION = "guide-v2";
+const VERSION = "guide-v3";
 const CORE = ["./", "index.html", "js/app.js", "js/logic.js", "js/store.js", "js/catalog.js", "js/sample.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
