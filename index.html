@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>맞춤 제품 가이드</title>
+<meta name="theme-color" content="#2f6b4f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="제품가이드">
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #1d2320; --muted: #6b726e; --line: #e4e2dc;
+    --accent: #2f6b4f; --accent-soft: #e5f0ea; --warn: #9a5b13; --chip: #efede7; --dose-bg: #fbf3e4; --dose-ink: #8a5a12;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151816; --card: #1e2220; --ink: #ecefec; --muted: #9aa29d; --line: #2e3431;
+      --accent: #6fbf95; --accent-soft: #24352c; --warn: #e0a85c; --chip: #262b28; --dose-bg: #2c2619; --dose-ink: #e0b46c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    font-size: 15px; line-height: 1.5; padding-bottom: 90px; }
+  header { padding: 20px 16px 8px; max-width: 880px; margin: 0 auto; }
+  header h1 { font-size: 22px; margin: 0; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  main { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+  .tabs { display: flex; gap: 6px; margin: 12px 0; }
+  .tabs button { flex: 1; padding: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .tabs button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  section.panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .panel h2 { font-size: 16px; margin: 0 0 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 140px; flex: 1; }
+  .field > span, .grp-title { font-size: 13px; color: var(--muted); font-weight: 600; }
+  input[type=number], input[type=search], select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--ink); font-size: 15px; width: 100%; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 7px 12px; border-radius: 999px; background: var(--chip); border: 1px solid transparent;
+    color: var(--ink); font-size: 14px; cursor: pointer; user-select: none; }
+  .chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .grp { margin-bottom: 12px; }
+  .grp-title { margin-bottom: 6px; display: block; }
+  .actions { display: flex; gap: 8px; }
+  .btn { padding: 11px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; flex: 1; }
+  .result-head { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 2px 10px; }
+  .result-head h2 { font-size: 16px; margin: 0; }
+  .result-head span { color: var(--muted); font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .card.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .card .meta { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+  .card h3 { font-size: 16px; margin: 0; line-height: 1.35; }
+  .card .desc { font-size: 13px; color: var(--muted); margin: 0; }
+  .card .price { font-size: 18px; font-weight: 700; }
+  .card .size { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .card .monthly { font-size: 12px; color: var(--warn); }
+  .card select { padding: 6px 8px; font-size: 13px; }
+  .why { display: flex; flex-wrap: wrap; gap: 4px; }
+  .why span { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .card .pick { margin-top: auto; padding: 9px; border-radius: 10px; border: 1px solid var(--accent); background: transparent;
+    color: var(--accent); font-weight: 600; font-size: 14px; cursor: pointer; }
+  .card.sel .pick { background: var(--accent); color: #fff; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 10px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .filters input { flex: 2; min-width: 180px; }
+  .filters select { flex: 1; min-width: 120px; width: auto; }
+  .dose { background: var(--dose-bg); border-radius: 10px; padding: 8px 10px; font-size: 13px; line-height: 1.45; }
+  .dose b { display: block; font-size: 12px; color: var(--dose-ink); margin-bottom: 1px; }
+  .dose .days { display: block; margin-top: 3px; font-size: 12px; color: var(--muted); }
+  .dose-list { display: flex; flex-direction: column; gap: 8px; }
+  .dose-row { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .dose-row .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .dose-row .top b { font-size: 15px; }
+  .dose-row .top span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .dose-row .how { font-size: 14px; margin-top: 4px; }
+  .dose-row .days { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .note { font-size: 12px; color: var(--muted); margin: 18px 2px; }
+
+  /* 선택 목록 */
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); z-index: 10; }
+  .bar-inner { max-width: 880px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+  .bar-inner .sum { flex: 1; font-size: 14px; }
+  .bar-inner .sum b { font-size: 17px; }
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 20; display: none; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 82vh; overflow: auto; background: var(--card);
+    border-radius: 18px 18px 0 0; z-index: 21; padding: 16px 16px calc(20px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform .25s; }
+  .sheet.open { transform: none; }
+  .sheet-inner { max-width: 880px; margin: 0 auto; }
+  .sheet h2 { margin: 0 0 10px; font-size: 18px; display: flex; justify-content: space-between; }
+  .line { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .line .nm { flex: 1; font-size: 14px; }
+  .line .nm small { display: block; color: var(--muted); }
+  .qty { display: flex; align-items: center; gap: 6px; }
+  .qty button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+  .line .lp { width: 92px; text-align: right; font-weight: 600; font-size: 14px; }
+  .total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 700; padding: 14px 0; }
+  .toast { position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%); background: var(--ink); color: var(--bg);
+    padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s; z-index: 30; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>맞춤 제품 가이드</h1>
+  <p>암웨이 카탈로그 「The Choice」 Autumn 2026 Vol.75 기준</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <button id="tabRec" class="on">추천 받기</button>
+    <button id="tabAll">전체 제품</button>
+    <button id="tabDose">섭취 방법</button>
+  </div>
+
+  <!-- 추천 받기 -->
+  <div id="viewRec">
+    <section class="panel">
+      <h2>소비자 정보</h2>
+      <div class="row">
+        <label class="field"><span>나이</span><input id="age" type="number" min="0" max="110" placeholder="예: 45" inputmode="numeric"></label>
+        <div class="field"><span>성별</span>
+          <div class="chips" id="gender">
+            <span class="chip" data-v="F">여성</span><span class="chip" data-v="M">남성</span>
+          </div>
+        </div>
+        <label class="field"><span>예산 (1개당 최대)</span>
+          <select id="budget">
+            <option value="">제한 없음</option>
+            <option value="30000">3만 원 이하</option>
+            <option value="50000">5만 원 이하</option>
+            <option value="100000">10만 원 이하</option>
+            <option value="300000">30만 원 이하</option>
+            <option value="1000000">100만 원 이하</option>
+          </select>
+        </label>
+      </div>
+      <div class="grp">
+        <span class="grp-title">관심 분야 (선택 안 하면 전체)</span>
+        <div class="chips" id="cats"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>고민·증상</h2>
+      <div id="concerns"></div>
+      <div class="actions">
+        <button class="btn" id="reset">초기화</button>
+        <button class="btn primary" id="go">추천 보기</button>
+      </div>
+    </section>
+
+    <div id="recOut"></div>
+  </div>
+
+  <!-- 전체 제품 -->
+  <div id="viewAll" hidden>
+    <div class="filters">
+      <input id="q" type="search" placeholder="제품명 검색 (예: 오메가, 샴푸)">
+      <select id="fCat"><option value="">전체 카테고리</option></select>
+      <select id="fSort">
+        <option value="pg">카탈로그 순</option>
+        <option value="low">낮은 가격순</option>
+        <option value="high">높은 가격순</option>
+      </select>
+    </div>
+    <div class="result-head"><h2>전체 제품</h2><span id="allCount"></span></div>
+    <div class="grid" id="allGrid"></div>
+  </div>
+
+  <!-- 섭취 방법 모아보기 -->
+  <div id="viewDose" hidden>
+    <div class="filters"><input id="dq" type="search" placeholder="영양제 이름 검색 (예: 비타민, 오메가)"></div>
+    <div class="result-head"><h2>💊 영양제 섭취 방법</h2><span id="doseCount"></span></div>
+    <div class="dose-list" id="doseList"></div>
+  </div>
+
+  <p class="note">※ 가격은 카탈로그 게재 기준 소비자가이며 변동될 수 있습니다. 건강기능식품은 질병의 예방·치료를 위한 의약품이 아닙니다. 복용 중인 약이 있거나 임신 중이라면 전문가와 상담하세요.</p>
+</main>
+
+<div class="bar">
+  <div class="bar-inner">
+    <div class="sum">선택 <b id="barCount">0</b>개 · <b id="barTotal">0원</b></div>
+    <button class="btn primary" id="openSheet" style="flex:none">선택 목록 보기</button>
+  </div>
+</div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-inner">
+    <h2>선택 목록 <button class="btn" id="closeSheet" style="padding:4px 12px">닫기</button></h2>
+    <div id="lines"></div>
+    <div class="total"><span>합계</span><span id="sheetTotal">0원</span></div>
+    <div class="actions">
+      <button class="btn" id="clearSel">비우기</button>
+      <button class="btn primary" id="copySel">안내 문구 복사</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// 암웨이 카탈로그 「The Choice」 Autumn 2026 Vol.75 기준 (pg = 카탈로그 인쇄 페이지)
+// 필드: n 이름, c 카테고리, s 세부분류, z 용량, p 가격(원), pg 페이지, t 관심사 태그,
+//       a [최소나이, 최대나이], g 'F'|'M' 성별 한정, d 한 줄 소개, v 다른 용량 [{z,p}], m 월 렌탈/할부 안내
+
+const CATEGORIES = {
+  nutrition: { label: '영양 건강', icon: '💊' },
+  beauty:    { label: '뷰티', icon: '✨' },
+  personal:  { label: '퍼스널 케어', icon: '🧴' },
+  home:      { label: '홈 리빙', icon: '🧺' },
+  hometech:  { label: '홈테크', icon: '🏠' },
+};
+
+const CONCERNS = [
+  { group: '건강', items: [
+    ['basic', '기초 영양'], ['fatigue', '피로·활력'], ['immune', '면역력'], ['gut', '장 건강'],
+    ['digest', '소화'], ['bone', '뼈·치아'], ['joint', '관절·근력'], ['eye', '눈 건강'],
+    ['blood', '혈행·콜레스테롤'], ['brain', '기억력·두뇌'], ['liver', '간 건강'], ['sugar', '혈당'],
+    ['sleep', '수면·스트레스'], ['weight', '체중·체지방'], ['protein', '단백질 보충'], ['antiox', '항산화'],
+    ['skinin', '피부 이너뷰티'], ['meno', '갱년기'], ['prostate', '전립선'], ['growth', '성장기'],
+    ['preg', '임신·수유'], ['anemia', '철분 부족'], ['nose', '비염·코 건강'],
+  ]},
+  { group: '피부·뷰티', items: [
+    ['wrinkle', '주름·탄력'], ['bright', '미백·잡티'], ['dry', '건조·보습'], ['oily', '지성·트러블'],
+    ['sensitive', '민감·진정'], ['pore', '모공·각질'], ['sun', '자외선'], ['makeup', '메이크업 클렌징'],
+  ]},
+  { group: '헤어·바디·구강', items: [
+    ['hairloss', '탈모·두피'], ['damaged', '손상모'], ['dandruff', '비듬·지성 두피'], ['oral', '구강·잇몸'],
+    ['bodydry', '바디 건조·가려움'], ['baby', '아기 피부'],
+  ]},
+  { group: '생활·홈', items: [
+    ['dust', '미세먼지·공기'], ['water', '깨끗한 물'], ['humid', '건조한 실내'], ['cook', '건강한 요리'],
+    ['exercise', '운동 부족'], ['massage', '발·다리 피로'], ['laundry', '세탁'], ['clean', '주방·청소'],
+  ]},
+];
+
+const PRODUCTS = [
+  // ───────── 영양 건강 · 뉴트리라이트 ─────────
+  { n: '더블엑스', c: 'nutrition', h: '1일 2회 · 골드·실버·그린팩 각 2정 (또는 1포) · 식사 시 물과 함께', upd: 4, s: '멀티비타민', z: '골드·실버·그린팩 각 124정 (트레이)', p: 91000, pg: 33, t: ['basic','fatigue','antiox'], a: [19, 99], d: '뉴트리라이트 대표 종합 비타민·무기질', v: [{ z: '리필', p: 88000 }] },
+  { n: '더블엑스 10데이즈', c: 'nutrition', h: '1일 2회 · 1회 1포 · 식사 시 물과 함께', upd: 2, s: '멀티비타민', z: '20포 (10일분)', p: 32000, pg: 33, t: ['basic','fatigue'], a: [19, 99], d: '더블엑스를 짧게 경험해 보는 소포장' },
+  { n: '비긴', c: 'nutrition', h: '1일 1회 · 1포 · 물 50~100ml에 타서', upd: 1, s: '프로바이오틱스', z: '30포', p: 67000, pg: 49, t: ['gut','digest'], d: '장 환경 개선 + 유산균, 데일리 장 건강 스타터' },
+  { n: '밸런스 위드인 더블유', c: 'nutrition', h: '1일 1회 · 1포 · 그대로 또는 찬물·찬 음료와 함께', upd: 1, s: '프로바이오틱스', z: '30포', p: 51000, pg: 35, t: ['gut'], g: 'F', d: '크랜베리·이눌린을 더한 여성용 유산균' },
+  { n: '밸런스 위드인 이뮤니티', c: 'nutrition', h: '1일 1회 · 1캡슐 · 물과 함께', upd: 1, s: '프로바이오틱스', z: '30캡슐', p: 49000, pg: 36, t: ['gut','immune'], d: '100억 CFU 유산균 + 면역 기능에 필요한 아연' },
+  { n: '밸런스 위드인 슬림핏', c: 'nutrition', h: '1일 1회 · 1캡슐 · 물과 함께', upd: 1, s: '프로바이오틱스', z: '30캡슐', p: 70000, pg: 36, t: ['gut','weight'], a: [19, 99], d: '체지방 감소 기능성 유산균 복합물' },
+  { n: '엔자임 바이옴', c: 'nutrition', h: '1일 1회 · 1포 · 충분한 물과 함께', upd: 1, s: '효소', z: '30포', p: 43000, pg: 47, t: ['digest','gut'], d: '발효효소 + 단백질·글루텐 분해 특허 유산균', v: [{ z: '90포', p: 115000 }] },
+  { n: '화이버 비츠 플러스', c: 'nutrition', h: '1일 2회 · 1회 17g · 씹어서', tpd: 2, s: '식이섬유', z: '24회분(408g)', p: 60000, pg: 49, t: ['gut','weight'], d: '황금 비율 식이섬유' },
+  { n: '뉴트리 화이버 파우더', c: 'nutrition', h: '1일 1회 · 1포 · 물·음료 200~300ml에 녹여서 (탄산 제외)', upd: 1, s: '식이섬유', z: '30포', p: 37000, pg: 49, t: ['gut'], d: '물에 타 먹는 수용성 식이섬유' },
+  { n: '비타민 비 플러스', c: 'nutrition', h: '1일 3회 · 1회 1정 · 식사 시 물과 함께', upd: 3, s: '비타민', z: '90정', p: 36000, pg: 40, t: ['fatigue','preg','growth'], d: '6중 기능성 비타민 B군 8종, 하루 활력 충전' },
+  { n: '츄어블 비타민 비', c: 'nutrition', h: '1일 3회 · 1회 1정 · 식사 시 씹어서', upd: 3, s: '비타민', z: '85정', p: 32000, pg: 40, t: ['fatigue','growth'], d: '물 없이 씹어 먹는 비타민 B군', v: [{ z: '270정', p: 84000 }] },
+  { n: '데일리 츄어블', c: 'nutrition', h: '1일 2회 · 1회 2정 · 식사 시 씹어서', upd: 4, s: '멀티비타민', z: '120정', p: 37000, pg: 40, t: ['basic','growth'], d: '블루베리맛 츄어블 13종 비타민·무기질' },
+  { n: '아세로라 C', c: 'nutrition', h: '1일 3회 · 1회 1정 · 식사 시 물과 함께', upd: 3, s: '비타민', z: '100정', p: 31000, pg: 41, t: ['antiox','immune'], d: '아세로라 비타민 C 200mg', v: [{ z: '300정', p: 76000 }] },
+  { n: '올데이 비타민 C 플러스', c: 'nutrition', h: '1일 1회 · 1정 · 충분한 물과 함께 (공복 가능)', upd: 1, s: '비타민', z: '60정', p: 45000, pg: 41, t: ['antiox','immune','fatigue'], a: [19, 99], d: '8시간 서서히 녹는 지속형 비타민 C 600mg', v: [{ z: '120정', p: 79000 }] },
+  { n: '칼맥 디', c: 'nutrition', h: '1일 2회 · 1회 2정 · 식사 시 물과 함께', upd: 4, s: '무기질', z: '120정', p: 34000, pg: 42, t: ['bone','growth'], d: '칼슘·마그네슘·비타민 D, 뼈 건강', v: [{ z: '360정', p: 82000 }] },
+  { n: '칼디', c: 'nutrition', h: '1일 2회 · 1회 2정 · 식사 시 씹어서', upd: 4, s: '무기질', z: '75정', p: 31000, pg: 42, t: ['bone','growth'], a: [3, 18], d: '씹어 먹는 칼슘, 성장기 어린이·청소년' },
+  { n: '비타민 D3+K2', c: 'nutrition', h: '1일 1회 · 1정 · 식사 시 물과 함께', upd: 1, s: '비타민', z: '90정', p: 45000, pg: 43, t: ['bone','immune'], d: '비타민 D와 K2를 함께' },
+  { n: '갈이 비타민', c: 'nutrition', h: '1일 1회 · 1회 2정 · 식사 시 물과 함께', upd: 2, s: '비타민', z: '120정', p: 38000, pg: 43, t: ['antiox','fatigue'], a: [19, 99], d: '비타민 E + 마늘·파슬리, 항산화 에너지' },
+  { n: '파 셀레늄 이', c: 'nutrition', h: '1일 2회 · 1회 1정 · 식사 시 물과 함께', upd: 2, s: '무기질', z: '60정', p: 35000, pg: 43, t: ['antiox'], a: [19, 99], d: '셀레늄 + 비타민 E 항산화 미네랄' },
+  { n: '마그네슘+릴랙스', c: 'nutrition', h: '1일 1회 · 1포', upd: 1, s: '무기질', z: '30포', p: 37000, pg: 45, t: ['sleep','fatigue'], d: '마그네슘, 바쁜 일상의 긴장 완화' },
+  { n: '아이언 폴릭 플러스', c: 'nutrition', h: '1일 2회 · 1회 1정 · 식사 시 물과 함께', upd: 2, s: '무기질', z: '120정', p: 30000, pg: 45, t: ['anemia','preg'], g: 'F', d: '여성에게 필요한 철분과 엽산' },
+  { n: '에스에이치엔 써플리먼트', c: 'nutrition', h: '1일 2회 · 1회 2정 · 식사 시 물과 함께', upd: 4, s: '기능성', z: '160정', p: 38000, pg: 46, t: ['skinin'], d: '피부·모발·손톱(SHN)을 위한 영양' },
+  { n: '카로틴 플러스', c: 'nutrition', h: '1일 3회 · 1회 1캡슐 · 식사 시 물과 함께', upd: 3, s: '기능성', z: '90캡슐', p: 35000, pg: 46, t: ['antiox','eye'], d: '베타카로틴 항산화' },
+  { n: '판토블렌드', c: 'nutrition', h: '1일 1회 · 1회 2정 · 물과 함께', upd: 2, s: '기능성', z: '60정', p: 44000, pg: 46, t: ['hairloss','skinin'], d: '판토텐산·비오틴, 모발 건강 영양', v: [{ z: '60정×3 번들', p: 116000 }] },
+  { n: '츄어블 레시틴', c: 'nutrition', h: '1일 4정 · 씹어서', upd: 4, s: '레시틴', z: '120정', p: 47000, pg: 47, t: ['basic','brain'], d: '오독오독 씹어 먹는 식물성 레시틴' },
+  { n: '뉴트리 파이토 푸로틴', c: 'nutrition', h: '1일 2회 · 1회 2스푼(15cc) 또는 스틱 1포 · 물·우유·주스에 섞어서', upd: 2, tpd: 2, s: '단백질', z: '약 36회분(450g)', p: 47000, pg: 50, t: ['protein','joint'], d: '매일 채우는 식물성 단백질', v: [{ z: '약 72회분(900g)', p: 85000 }, { z: '스틱 12.5g×14포', p: 25000 }] },
+  { n: '뉴트리 푸로틴(녹차맛)', c: 'nutrition', h: '1일 2회 · 1회 3스푼(15cc) · 물 200ml에 녹여서', tpd: 2, s: '단백질', z: '약 19회분(450g)', p: 47000, pg: 51, t: ['protein'], d: '녹차맛 단백질' },
+  { n: '파이토 푸로틴 하이드라 액티브', c: 'nutrition', h: '1일 2회 · 1회 3스푼(15cc) · 물·우유·주스에 섞어서', tpd: 2, s: '단백질', z: '약 19회분(450g)', p: 66000, pg: 51, t: ['protein','joint','exercise'], a: [19, 99], d: '활동량 많은 분을 위한 단백질' },
+  { n: '뉴트리 마린 오메가-3', c: 'nutrition', h: '1일 2회 · 1회 2캡슐 · 식사 시 물과 함께', upd: 4, s: '오메가-3', z: '120캡슐', p: 53000, pg: 52, t: ['blood','eye'], d: '빈틈없이 채운 멀티 포뮬러 오메가-3' },
+  { n: '오메가-3 밸런스', c: 'nutrition', h: '1일 2회 · 1회 2캡슐 · 식사 시 물과 함께', upd: 4, s: '오메가-3', z: '360캡슐', p: 126000, pg: 52, t: ['blood','brain'], d: '온 가족 오메가-3 대용량' },
+  { n: '비·디에이치에이 블렌드', c: 'nutrition', h: '1일 2회 · 1회 2캡슐 · 식사 시 물과 함께', upd: 4, s: '오메가-3', z: '120캡슐', p: 50000, pg: 53, t: ['eye','brain'], d: 'DHA + 빌베리·마리골드, 두뇌와 망막' },
+  { n: '징코 엠', c: 'nutrition', h: '1일 1회 · 1회 2캡슐 · 식사 시 물과 함께', upd: 2, s: '기능성', z: '60캡슐', p: 48000, pg: 53, t: ['brain','blood'], a: [40, 99], d: '은행잎 추출물, 기억력·혈행' },
+  { n: '글루코헬스', c: 'nutrition', h: '1일 1회 · 1회 2정 · 충분한 물과 함께', upd: 2, s: '기능성', z: '180정', p: 94000, pg: 54, t: ['sugar'], a: [30, 99], d: '식후 혈당 관리' },
+  { n: '코큐텐', c: 'nutrition', h: '1일 3회 · 1회 1캡슐 · 식사 시 물과 함께', upd: 3, s: '기능성', z: '90캡슐', p: 48000, pg: 54, t: ['antiox','blood','fatigue'], a: [35, 99], d: '코엔자임Q10 항산화' },
+  { n: '비젼 헬스', c: 'nutrition', h: '1일 1회 · 1캡슐 · 식사 시 물과 함께', upd: 1, s: '기능성', z: '30캡슐', p: 49000, pg: 55, t: ['eye'], a: [19, 99], d: '루테인, 눈 건강', v: [{ z: '90캡슐', p: 128000 }] },
+  { n: '조인트 가드', c: 'nutrition', h: '1일 3회 · 1회 2정 · 식사 시 물과 함께', upd: 6, s: '기능성', z: '180정', p: 63000, pg: 55, t: ['joint'], a: [35, 99], d: '관절 건강' },
+  { n: '밀크씨슬 이엑스', c: 'nutrition', h: '1일 2회 · 1회 1정 · 식사 시 물과 함께', upd: 2, s: '기능성', z: '60정', p: 46000, pg: 56, t: ['liver','fatigue'], a: [19, 99], d: '지친 간을 채우는 건강 에너지' },
+  { n: '앨로케어', c: 'nutrition', h: '1일 3회 · 1회 2정 · 식사 시 물과 함께', upd: 6, s: '기능성', z: '180정', p: 45000, pg: 56, t: ['nose','immune'], a: [19, 99], d: '과민 반응에 의한 코 상태 개선' },
+  { n: '이뮤니티 에키네시아', c: 'nutrition', h: '1일 1회 · 1포 · 가볍게 흔든 뒤 바로 짜서', upd: 1, s: '기능성', z: '14포', p: 39000, pg: 57, t: ['immune'], d: '면역 전투력이 필요할 때', v: [{ z: '56포', p: 129000 }] },
+  { n: '지엘에이 블렌드', c: 'nutrition', h: '1일 2회 · 1회 2캡슐 · 식사 시 물과 함께', upd: 4, s: '기능성', z: '120캡슐', p: 48000, pg: 58, t: ['meno','blood'], g: 'F', a: [19, 99], d: '건강한 여성을 위한 감마리놀렌산' },
+  { n: '루바블렌드', c: 'nutrition', h: '1일 1회 · 1정 · 식사 시 물과 함께', upd: 1, s: '기능성', z: '30정', p: 48000, pg: 58, t: ['meno'], g: 'F', a: [40, 99], d: '식물에서 찾은 갱년기 건강', v: [{ z: '30정×3 번들', p: 128000 }] },
+  { n: '쏘팔메토 블렌드', c: 'nutrition', h: '1일 3회 · 1회 1캡슐 · 식사 시 물과 함께', upd: 3, s: '기능성', z: '90캡슐', p: 45000, pg: 59, t: ['prostate'], g: 'M', a: [40, 99], d: '남성의 건강한 전립선 관리', v: [{ z: '90캡슐×3 번들', p: 123000 }] },
+  { n: '트루 세라마이드', c: 'nutrition', h: '1일 1회 · 1회 2정 · 식사 시 물과 함께', upd: 2, s: '이너뷰티', z: '60정', p: 49000, pg: 60, t: ['skinin','dry'], a: [19, 99], d: '먹는 세라마이드, 피부 보습 장벽' },
+  { n: '트루 콜라겐', c: 'nutrition', h: '1일 1포 · 충분한 물과 함께', upd: 1, s: '이너뷰티', z: '30포', p: 46000, pg: 60, t: ['skinin','wrinkle'], a: [25, 99], d: '먹는 콜라겐' },
+  { n: '머슬파워 부스터', c: 'nutrition', h: '1일 1회 · 1포 · 물 200ml에 타서', upd: 1, s: '기능성', z: '14포', p: 40000, pg: 61, t: ['joint','exercise'], a: [30, 99], d: '근력 개선 + 관절 건강 이중 기능성' },
+  { n: '굿 슬립 밸런스', c: 'nutrition', h: '1일 1회 · 1회 3정 · 잠들기 30분 전, 충분한 물과 함께', upd: 3, s: '기능성', z: '90정', p: 65000, pg: 61, t: ['sleep'], a: [19, 99], d: '미강 주정추출물, 수면 질 개선', v: [{ z: '270정', p: 159000 }] },
+  { n: '씨엘에이', c: 'nutrition', h: '1일 3회 · 1회 2캡슐 · 식사 시 물과 함께', upd: 6, s: '체중관리', z: '180캡슐', p: 68000, pg: 62, t: ['weight'], a: [19, 99], d: '공액리놀레산, 체지방 감소' },
+  { n: '슬림스마트', c: 'nutrition', h: '1일 3회 · 1회 2정 · 식사 시 물과 함께', upd: 6, s: '체중관리', z: '180정', p: 57000, pg: 63, t: ['weight'], a: [19, 99], d: '체지방 관리' },
+  { n: '카보 저스트', c: 'nutrition', h: '1일 3회 · 1회 4정 · 식사 시 물과 함께', upd: 12, s: '체중관리', z: '120정', p: 45000, pg: 63, t: ['weight','sugar'], a: [19, 99], d: '탄수화물 위주 식습관 관리' },
+  { n: '파워블럭 키토산', c: 'nutrition', h: '1일 3회 · 1회 2정 · 식사 시 또는 식사 30분 전, 물과 함께', upd: 6, s: '체중관리', z: '180정', p: 45000, pg: 63, t: ['blood','weight'], a: [19, 99], d: '콜레스테롤 흡수 억제' },
+  { n: '바디키 칼로리바', c: 'nutrition', h: '1회 1개 · 저지방 우유(250ml) 또는 바디키 쉐이크와 함께', s: '체중관리', z: '28g×14개', p: 36000, pg: 69, t: ['weight','protein'], a: [15, 99], d: '영양은 탄탄, 체중조절은 건강하게' },
+  { n: '뉴트리키즈 이뮤니티 플러스', c: 'nutrition', h: '1일 1회 · 1포 · 그대로 또는 물과 함께', upd: 1, s: '키즈', z: '30포', p: 45000, pg: 66, t: ['immune','growth'], a: [3, 12], d: '우리 아이 면역' },
+  { n: '뉴트리키즈 비타민 무기질', c: 'nutrition', h: '만 3~8세 기준 1일 2회 · 1회 2정 · 씹어서', upd: 4, s: '키즈', z: '120정', p: 47000, pg: 66, t: ['basic','growth'], a: [3, 12], d: '어린이 종합 비타민·무기질' },
+  { n: '뉴트리키즈 푸로틴(베리)', c: 'nutrition', h: '1일 2회 · 1회 전용 스푼 1스푼(23.5g) · 물 200ml에 녹여서', tpd: 2, s: '키즈', z: '약 21회분(500g)', p: 44000, pg: 66, t: ['protein','growth'], a: [3, 12], d: '베리맛 어린이 단백질' },
+  { n: '키즈 플러스 세트', c: 'nutrition', s: '키즈', z: '세트', p: 166000, pg: 67, t: ['growth','basic','immune'], a: [3, 12], d: '우리 아이 평생건강 플랜 세트' },
+  { n: '틴즈 플러스 세트', c: 'nutrition', s: '키즈', z: '세트', p: 247000, pg: 67, t: ['growth','basic','fatigue'], a: [13, 19], d: '청소년 평생건강 플랜 세트' },
+  { n: '내 몸에 풀 파워 면역젤리', c: 'nutrition', h: '하루 1포', upd: 1, s: '엔 바이 뉴트리라이트', z: '20g×14포', p: 26000, pg: 81, t: ['immune'], d: '간편한 젤리형 면역 관리' },
+  { n: '내 눈에 하트충전 젤리', c: 'nutrition', s: '엔 바이 뉴트리라이트', z: '(4.5g×30개)×2팩', p: 22000, pg: 82, t: ['eye'], d: '젤리로 챙기는 눈 건강' },
+  { n: '오늘도 눈부시게 글루타치온', c: 'nutrition', h: '하루 1장 · 입안에 붙여서', upd: 1, s: '엔 바이 뉴트리라이트', z: '30매', p: 35000, pg: 83, t: ['bright','skinin'], a: [19, 99], d: '필름형 글루타치온', v: [{ z: '30매×3 번들', p: 94000 }] },
+  { n: 'XS 에센셜 아미노', c: 'nutrition', h: '1회 분량(스틱 1포)을 물에 잘 녹여서', s: 'XS', z: '222g(30회분)', p: 64000, pg: 84, t: ['exercise','joint','protein'], a: [15, 99], d: '운동 전후 필수 아미노산' },
+  { n: 'XS 푸로틴바', c: 'nutrition', s: 'XS', z: '48g×14개', p: 36000, pg: 85, t: ['protein','exercise'], d: '간편 단백질 바' },
+
+  // ───────── 뷰티 · 아티스트리 ─────────
+  { n: '스킨 뉴트리션 디파잉 세럼', c: 'beauty', s: '스킨 뉴트리션', z: '30ml', p: 90000, pg: 113, t: ['wrinkle'], a: [30, 99], d: '주름 개선 세럼' },
+  { n: '스킨 뉴트리션 코렉팅 세럼', c: 'beauty', s: '스킨 뉴트리션', z: '30ml', p: 126000, pg: 113, t: ['bright'], a: [25, 99], d: '잡티·톤 개선 세럼' },
+  { n: '브라이트닝 비타민 C+ 겔 마스크', c: 'beauty', s: '스킨 뉴트리션', z: '28g×5매', p: 39000, pg: 111, t: ['bright'], d: '비타민 C 겔 마스크' },
+  { n: '오메가 드롭스', c: 'beauty', s: '스킨 뉴트리션', z: '20ml', p: 68000, pg: 115, t: ['dry','sensitive'], d: '오메가 오일 보습' },
+  { n: '퍼밍 울트라 리프팅 크림', c: 'beauty', s: '스킨 뉴트리션', z: '50g', p: 131000, pg: 117, t: ['wrinkle'], a: [40, 99], d: '탄력 리프팅 크림' },
+  { n: '리뉴잉 리액티베이션 크림', c: 'beauty', s: '스킨 뉴트리션 리뉴잉', z: '50g', p: 101000, pg: 119, t: ['wrinkle','dry'], a: [35, 99], d: '리뉴잉 라인 크림' },
+  { n: '리뉴잉 리액티베이션 아이 크림', c: 'beauty', s: '스킨 뉴트리션 리뉴잉', z: '15g', p: 79000, pg: 119, t: ['wrinkle'], a: [35, 99], d: '눈가 주름·탄력' },
+  { n: '리뉴잉 소프트닝 토너', c: 'beauty', s: '스킨 뉴트리션 리뉴잉', z: '200ml', p: 64000, pg: 119, t: ['wrinkle','dry'], a: [35, 99], d: '리뉴잉 라인 토너' },
+  { n: '리뉴잉 밀키 에멀젼', c: 'beauty', s: '스킨 뉴트리션 리뉴잉', z: '120g', p: 88000, pg: 119, t: ['wrinkle','dry'], a: [35, 99], d: '리뉴잉 라인 에멀젼' },
+  { n: '하이드레이팅 젤 크림', c: 'beauty', s: '스킨 뉴트리션 하이드레이팅', z: '50g', p: 50000, pg: 121, t: ['dry'], d: '수분 젤 크림' },
+  { n: '하이드레이팅 스무딩 토너', c: 'beauty', s: '스킨 뉴트리션 하이드레이팅', z: '200ml', p: 40000, pg: 121, t: ['dry'], d: '수분 토너' },
+  { n: '하이드레이팅 아이 젤 크림', c: 'beauty', s: '스킨 뉴트리션 하이드레이팅', z: '15g', p: 46000, pg: 121, t: ['dry'], d: '눈가 수분' },
+  { n: '하이드레이팅 무스 클렌저', c: 'beauty', s: '스킨 뉴트리션 하이드레이팅', z: '145ml', p: 39000, pg: 121, t: ['dry','sensitive'], d: '촉촉한 무스 클렌저' },
+  { n: '밸런싱 젤리 클렌저', c: 'beauty', s: '스킨 뉴트리션 밸런싱', z: '125g', p: 32000, pg: 123, t: ['oily','pore'], a: [13, 39], d: '유수분 밸런싱 클렌저' },
+  { n: '밸런싱 프레쉬 셰이크 토너', c: 'beauty', s: '스킨 뉴트리션 밸런싱', z: '200ml', p: 36000, pg: 123, t: ['oily','pore'], a: [13, 39], d: '산뜻한 밸런싱 토너' },
+  { n: '밸런싱 매트 젤 로션', c: 'beauty', s: '스킨 뉴트리션 밸런싱', z: '50g', p: 38000, pg: 123, t: ['oily'], a: [13, 39], d: '번들거림 잡는 매트 로션' },
+  { n: '스킨 뉴트리션 슬리핑 마스크', c: 'beauty', s: '스킨 뉴트리션', z: '80ml', p: 75000, pg: 125, t: ['dry'], d: '자는 동안 집중 보습' },
+  { n: '프로틴 아키텍처 크림', c: 'beauty', s: '스킨케어', z: '50g', p: 39000, pg: 127, t: ['wrinkle','dry'], d: '탄력 크림' },
+  { n: '비타민 크림 미스트', c: 'beauty', s: '스킨케어', z: '120ml', p: 31000, pg: 128, t: ['dry'], d: '수시로 뿌리는 크림 미스트' },
+  { n: '히알루론산 플러스 엑소좀 딥 샷', c: 'beauty', s: '스킨케어', z: '34mg×4개', p: 49000, pg: 128, t: ['dry','wrinkle'], d: '집중 수분 앰플' },
+  { n: '슈퍼 파이토 뉴트리션 세럼', c: 'beauty', s: '스킨케어', z: '50ml', p: 89000, pg: 129, t: ['wrinkle','bright'], a: [25, 99], d: '식물 영양 세럼' },
+  { n: '롱제비티 리치 크림', c: 'beauty', s: '롱제비티', z: '50g', p: 378000, pg: 131, t: ['wrinkle','dry'], a: [45, 99], d: '아티스트리 최상위 안티에이징 크림' },
+  { n: '롱제비티 아이 크림', c: 'beauty', s: '롱제비티', z: '15g', p: 197000, pg: 131, t: ['wrinkle'], a: [45, 99], d: '최상위 눈가 케어' },
+  { n: '인텐시브 스킨케어 14 나이트 리셋 프로그램', c: 'beauty', s: '인텐시브', z: '1.5ml×14개', p: 338000, pg: 134, t: ['wrinkle'], a: [35, 99], d: '14일 집중 프로그램' },
+  { n: '인텐시브 스킨케어 비타 콜라겐 캡슐', c: 'beauty', s: '인텐시브', z: '0.05g×14개', p: 59000, pg: 134, t: ['wrinkle','bright'], a: [25, 99], d: '비타민·콜라겐 캡슐 앰플' },
+  { n: '랩스 일루미네이팅 시스템 세럼', c: 'beauty', s: '랩스', z: '세럼 30ml', p: 135000, pg: 137, t: ['bright'], a: [25, 99], d: '잡티 집중 브라이트닝', v: [{ z: '세럼 + 스팟 코렉터', p: 242000 }] },
+  { n: '랩스 리텍스처라이징 시스템 세럼', c: 'beauty', s: '랩스', z: '세럼 30ml', p: 127000, pg: 139, t: ['pore'], a: [25, 99], d: '피부결·모공 리텍스처', v: [{ z: '필 & 세럼', p: 230000 }] },
+  { n: '아이디얼 래디언스 크림', c: 'beauty', s: '아이디얼 래디언스', z: '50ml', p: 74000, pg: 141, t: ['bright','dry'], d: '맑은 톤 크림' },
+  { n: '아이디얼 래디언스 토너', c: 'beauty', s: '아이디얼 래디언스', z: '200ml', p: 54000, pg: 141, t: ['bright'], d: '맑은 톤 토너' },
+  { n: '스튜디오 엑토힐 시카 S.O.S 밤', c: 'beauty', s: '스튜디오 스킨', z: '30ml', p: 27000, pg: 143, t: ['sensitive','oily'], a: [13, 39], d: '예민한 피부 진정 시카 밤' },
+  { n: '스튜디오 하이드레디 셀 앰플', c: 'beauty', s: '스튜디오 스킨', z: '20ml', p: 30000, pg: 143, t: ['dry'], a: [13, 39], d: '수분 앰플' },
+  { n: '스튜디오 엔자임 파우더', c: 'beauty', s: '스튜디오 스킨', z: '80g', p: 30000, pg: 143, t: ['pore'], a: [13, 39], d: '각질·모공 효소 파우더 세안' },
+  { n: '스킨 뉴트리션 메이크업 클렌징 오일', c: 'beauty', s: '클렌징', z: '200ml', p: 58000, pg: 146, t: ['makeup'], d: '진한 메이크업 클렌징 오일' },
+  { n: '미셀라 메이크업 리무버 클렌저', c: 'beauty', s: '클렌징', z: '200ml', p: 35000, pg: 146, t: ['makeup','sensitive'], d: '자극 적은 미셀라 클렌저' },
+  { n: '멀티 디펜스 유브이 프로텍트 SPF50+', c: 'beauty', s: '선케어', z: '50g', p: 44000, pg: 149, t: ['sun'], d: '데일리 자외선 차단' },
+  { n: '톤업 글로우 크림 SPF50+', c: 'beauty', s: '선케어', z: '40ml', p: 33000, pg: 149, t: ['sun','bright'], d: '톤업 + 자외선 차단' },
+  { n: '아티스트리 맨 인바이빙 에멀젼', c: 'beauty', s: '아티스트리 맨', z: '150ml', p: 44000, pg: 150, t: ['dry'], g: 'M', d: '남성용 보습 에멀젼' },
+  { n: '아티스트리 맨 밸런싱 하이드레이터', c: 'beauty', s: '아티스트리 맨', z: '150ml', p: 40000, pg: 150, t: ['oily'], g: 'M', d: '남성용 유수분 밸런스' },
+  { n: '오가닉 라벤더 에센셜 오일', c: 'beauty', s: '에센셜 오일', z: '15ml', p: 35000, pg: 163, t: ['sleep'], d: '편안한 휴식 아로마' },
+
+  // ───────── 퍼스널 케어 ─────────
+  { n: '스캘프 뉴트리션 샴푸', c: 'personal', s: '새티니크 헤어', z: '750ml', p: 44000, pg: 170, t: ['hairloss'], a: [19, 99], d: '탈모 증상 완화 두피 샴푸', v: [{ z: '280ml', p: 22000 }] },
+  { n: '스캘프 뉴트리션 인텐시브 세럼', c: 'personal', s: '새티니크 헤어', z: '100ml', p: 67500, pg: 170, t: ['hairloss'], a: [19, 99], d: '두피 집중 세럼' },
+  { n: '스캘프 뉴트리션 토닉 에센스', c: 'personal', s: '새티니크 헤어', z: '120ml', p: 33000, pg: 170, t: ['hairloss','dandruff'], a: [19, 99], d: '두피 토닉' },
+  { n: '퓨리파잉 스캘프 앤 헤어 샴푸', c: 'personal', s: '새티니크 헤어', z: '750ml', p: 31000, pg: 171, t: ['dandruff'], d: '지성 두피 딥 클렌징', v: [{ z: '280ml', p: 14500 }] },
+  { n: '인텐시브 리페어 샴푸', c: 'personal', s: '새티니크 헤어', z: '750ml', p: 36000, pg: 172, t: ['damaged'], d: '손상모 집중 케어', v: [{ z: '280ml', p: 16500 }] },
+  { n: '인텐시브 리페어 헤어 오일 세럼', c: 'personal', s: '새티니크 헤어', z: '100ml', p: 26000, pg: 173, t: ['damaged'], d: '끝 갈라짐·부스스함 케어' },
+  { n: '안티 댄드러프 스캘프 앤 헤어 샴푸', c: 'personal', s: '새티니크 헤어', z: '750ml', p: 36000, pg: 174, t: ['dandruff'], d: '비듬 케어 샴푸' },
+  { n: '스캘프 뉴트리션 레이저 L400', c: 'personal', s: '두피 디바이스', z: '본체', p: 1528000, pg: 175, t: ['hairloss'], a: [19, 99], d: '레이저 100개 + LED 300개 두피 케어 기기', m: '스마트페이 월 35,900원(36개월) + 선급금 298,000원' },
+  { n: '글리스터 프로액션 컴플리트 치약', c: 'personal', s: '글리스터 구강', z: '200g', p: 6800, pg: 177, t: ['oral'], d: '토탈 구강 케어 치약' },
+  { n: '글리스터 멀티액션 전동칫솔', c: 'personal', s: '글리스터 구강', z: '교체 칫솔헤드 3개 포함', p: 229000, pg: 178, t: ['oral'], a: [13, 99], d: '음파 전동칫솔' },
+  { n: '컴플리트 컨센트레이티드 마우스 워시', c: 'personal', s: '글리스터 구강', z: '72ml', p: 14000, pg: 179, t: ['oral'], d: '농축 가글' },
+  { n: '글리스터 프로액션 프로폴리스 필름', c: 'personal', s: '글리스터 구강', z: '30매', p: 29000, pg: 180, t: ['oral','immune'], a: [19, 99], d: '입속에 붙이는 프로폴리스 (건강기능식품)' },
+  { n: 'g&h 너리쉬 아토 크림', c: 'personal', s: 'g&h 바디', z: '160ml', p: 29000, pg: 183, t: ['bodydry','baby','sensitive'], d: '건조·민감한 피부 집중 보습' },
+  { n: 'g&h 너리쉬 바디 로션', c: 'personal', s: 'g&h 바디', z: '400ml', p: 15500, pg: 184, t: ['bodydry'], d: '데일리 바디 로션' },
+  { n: 'g&h 너리쉬 바디 워시', c: 'personal', s: 'g&h 바디', z: '400ml', p: 14500, pg: 184, t: ['bodydry'], d: '촉촉한 바디 워시', v: [{ z: '1L', p: 31000 }] },
+  { n: 'g&h 너리쉬 핸드 크림', c: 'personal', s: 'g&h 바디', z: '75ml', p: 13000, pg: 184, t: ['bodydry'], d: '핸드 크림' },
+  { n: 'g&h 너리쉬 풋 크림', c: 'personal', s: 'g&h 바디', z: '100ml', p: 15000, pg: 184, t: ['bodydry','massage'], d: '거친 발뒤꿈치 케어' },
+  { n: 'g&h 프로텍트 UV 선스크린', c: 'personal', s: 'g&h 바디', z: '100ml', p: 33000, pg: 186, t: ['sun'], d: '온 가족 바디 선스크린' },
+  { n: 'g&h 베이비 로션', c: 'personal', s: 'g&h 베이비', z: '400ml', p: 19600, pg: 187, t: ['baby','bodydry'], a: [0, 6], d: '아기 피부 보습' },
+  { n: 'g&h 베이비 워시 앤 샴푸', c: 'personal', s: 'g&h 베이비', z: '400ml', p: 19600, pg: 187, t: ['baby'], a: [0, 6], d: '순한 올인원 워시' },
+
+  // ───────── 홈 리빙 ─────────
+  { n: 'SA8 바이오퀘스트 액체 세탁 세제', c: 'home', s: '세탁', z: '1L', p: 21200, pg: 192, t: ['laundry'], d: '농축 액체 세탁 세제' },
+  { n: 'SA8 바이오퀘스트 베이비 액체 세탁 세제', c: 'home', s: '세탁', z: '1L', p: 35300, pg: 194, t: ['laundry','baby'], d: '아기 옷 전용 세제' },
+  { n: 'SA8 바이오퀘스트 섬유 유연제', c: 'home', s: '세탁', z: '1L', p: 15300, pg: 194, t: ['laundry'], d: '화이트 플로럴 섬유 유연제' },
+  { n: 'L.O.C. 바이오퀘스트 다목적 세정제', c: 'home', s: '청소', z: '1L', p: 12600, pg: 197, t: ['clean'], d: '집안 곳곳 다목적 세정제' },
+  { n: '디쉬 드랍스 바이오퀘스트 식기 세정제', c: 'home', s: '주방', z: '1L', p: 15900, pg: 202, t: ['clean'], d: '농축 주방 세제' },
+  { n: '디쉬 드랍스 과일 채소 세정제', c: 'home', s: '주방', z: '1L', p: 12800, pg: 202, t: ['clean','cook'], d: '과일·채소 세척' },
+  { n: '방역용마스크 KF94', c: 'home', s: '마스크', z: '30매', p: 16300, pg: 211, t: ['dust'], d: '엣모스피어 KF94 마스크' },
+
+  // ───────── 홈테크 ─────────
+  { n: '엣모스피어 스카이', c: 'hometech', s: '공기청정기', z: '본체', p: 1590000, pg: 213, t: ['dust'], d: '0.0024㎛ 입자까지 99.99% 감소, 거실용', m: '스마트페이 월 39,000원(36개월) + 선급금 328,000원' },
+  { n: '엣모스피어 블루', c: 'hometech', s: '공기청정기', z: '본체', p: 896000, pg: 219, t: ['dust'], d: '스카이보다 44% 작고 조용한 방·원룸용', m: '스마트페이 월 23,500원(36개월) + 선급금 144,000원' },
+  { n: '이스프링 정수기(전환기)', c: 'hometech', s: '정수기', z: '본체', p: 1488000, pg: 223, t: ['water'], d: '기존 수전에 연결하는 전환기형', m: '스마트페이 월 35,900원(36개월) + 선급금 258,000원' },
+  { n: '이스프링 정수기(퍼싯)', c: 'hometech', s: '정수기', z: '본체', p: 1528000, pg: 223, t: ['water'], d: '전용 수전(퍼싯)형', m: '스마트페이 월 35,900원(36개월) + 선급금 298,000원' },
+  { n: '옵티미스트', c: 'hometech', s: '가습기', z: '본체 + 워셔블 필터 1개', p: 450000, pg: 227, t: ['humid'], d: '기화식 가습 + UV-C LED' },
+  { n: '암웨이 퀸 인덕션 레인지', c: 'hometech', s: '주방가전', z: '본체', p: 466000, pg: 209, t: ['cook'], d: '퀸 냄비 전용 인덕션' },
+  { n: '암웨이 퀸 Ti 크라운 세트', c: 'hometech', s: '주방용품', z: '세트', p: 1164000, pg: 207, t: ['cook'], d: '무수분 요리 티타늄 조리기구 세트' },
+  { n: '리플렉서 1699', c: 'hometech', s: '기타 가전', z: '본체', p: 989000, pg: 229, t: ['massage'], a: [19, 99], d: '발 마사지기 (하루 10분)', m: '스마트페이 월 25,000원(36개월) + 선급금 189,000원' },
+  { n: '25센트 라이드 패키지', c: 'hometech', s: '웰니스', z: '패키지', p: 1528000, pg: 91, t: ['exercise','weight'], a: [12, 99], d: '홈 실내 자전거 (허용 신장 140~190cm)', m: '스마트페이 월 35,900원(36개월) + 선급금 298,000원' },
+];
+</script>
+<script>
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+const LABEL = Object.fromEntries(CONCERNS.flatMap(g => g.items));
+PRODUCTS.forEach((p, i) => p.id = i);
+
+const state = { gender: null, cats: new Set(), concerns: new Set() };
+// 선택 목록: key = `${id}|${variantIndex}` → qty
+let picks = {};
+try { picks = JSON.parse(localStorage.getItem('picks') || '{}'); } catch (e) {}
+const save = () => { try { localStorage.setItem('picks', JSON.stringify(picks)); } catch (e) {} };
+
+function variants(p) { return [{ z: p.z, p: p.p }, ...(p.v || [])]; }
+function chosenVariant(p) {
+  const k = Object.keys(picks).find(k => k.startsWith(p.id + '|'));
+  return k ? +k.split('|')[1] : 0;
+}
+
+// ── 입력 UI 구성 ──
+function chipToggle(el, set, v) { set.has(v) ? set.delete(v) : set.add(v); el.classList.toggle('on'); }
+$('#cats').innerHTML = Object.entries(CATEGORIES).map(([k, c]) => `<span class="chip" data-v="${k}">${c.icon} ${c.label}</span>`).join('');
+$('#cats').onclick = e => { const c = e.target.closest('.chip'); if (c) chipToggle(c, state.cats, c.dataset.v); };
+$('#concerns').innerHTML = CONCERNS.map(g => `<div class="grp"><span class="grp-title">${g.group}</span><div class="chips">${
+  g.items.map(([k, l]) => `<span class="chip" data-v="${k}">${l}</span>`).join('')}</div></div>`).join('');
+$('#concerns').onclick = e => { const c = e.target.closest('.chip'); if (c) chipToggle(c, state.concerns, c.dataset.v); };
+$('#gender').onclick = e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  state.gender = state.gender === c.dataset.v ? null : c.dataset.v;
+  [...$('#gender').children].forEach(x => x.classList.toggle('on', x.dataset.v === state.gender));
+};
+$('#fCat').innerHTML += Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${c.label}</option>`).join('');
+
+// ── 카드 ──
+// 1통으로 며칠 먹는지: 정·캡슐·포 개수 ÷ 하루 섭취량, 또는 회분 ÷ 하루 횟수
+function daysOf(p, v) {
+  let m = v.z.match(/(\d+)\s*회분/);
+  if (m && p.tpd) return Math.floor(+m[1] / p.tpd);
+  if (!p.upd) return null;
+  m = v.z.match(/(\d+)\s*(정|캡슐|포|매|개)(?:\s*×\s*(\d+))?/);
+  return m ? Math.floor(+m[1] * (+m[3] || 1) / p.upd) : null;
+}
+function daysText(p, v) {
+  const d = daysOf(p, v);
+  return d ? `1통 약 ${d}일분 · 하루 약 ${won(Math.round(v.p / d / 10) * 10)}` : '';
+}
+function doseBlock(p, v) {
+  if (!p.h) return '';
+  const dt = daysText(p, v);
+  return `<div class="dose"><b>🕐 섭취 방법</b>${p.h}${dt ? `<span class="days">${dt}</span>` : ''}</div>`;
+}
+
+function card(p, why) {
+  const vs = variants(p), vi = chosenVariant(p), sel = Object.keys(picks).some(k => k.startsWith(p.id + '|'));
+  const cur = vs[vi];
+  return `<div class="card ${sel ? 'sel' : ''}" data-id="${p.id}">
+    <div class="meta"><span>${CATEGORIES[p.c].icon} ${p.s}</span><span>카탈로그 p.${p.pg}</span></div>
+    <h3>${p.n}</h3>
+    <p class="desc">${p.d}</p>
+    ${why && why.length ? `<div class="why">${why.map(w => `<span>${w}</span>`).join('')}</div>` : ''}
+    <div class="price">${won(cur.p)}<span class="size">${cur.z}</span></div>
+    ${doseBlock(p, cur)}
+    ${vs.length > 1 ? `<select class="vsel">${vs.map((v, i) => `<option value="${i}" ${i === vi ? 'selected' : ''}>${v.z} · ${won(v.p)}</option>`).join('')}</select>` : ''}
+    ${p.m ? `<div class="monthly">${p.m}</div>` : ''}
+    <button class="pick">${sel ? '✓ 선택됨' : '+ 선택'}</button>
+  </div>`;
+}
+
+// ── 추천 ──
+function recommend() {
+  const age = parseInt($('#age').value, 10);
+  const budget = +$('#budget').value || Infinity;
+  const cs = state.concerns;
+  if (!cs.size) {
+    $('#recOut').innerHTML = `<div class="empty">고민·증상을 하나 이상 선택해 주세요.</div>`;
+    return;
+  }
+  const res = [];
+  for (const p of PRODUCTS) {
+    if (state.cats.size && !state.cats.has(p.c)) continue;
+    if (p.g && state.gender && p.g !== state.gender) continue;
+    if (p.a && !isNaN(age) && (age < p.a[0] || age > p.a[1])) continue;
+    if (p.p > budget) continue;
+    const hit = p.t.filter(t => cs.has(t));
+    if (!hit.length) continue;
+    let score = hit.length * 10 - p.t.length; // 고민에 딱 맞는 전문 제품을 위로
+    const why = hit.map(t => LABEL[t]);
+    if (p.a && !isNaN(age)) { score += 3; why.push(age < 13 ? '어린이 적합' : age < 20 ? '청소년 적합' : `${Math.floor(age / 10) * 10}대 적합`); }
+    if (p.g && state.gender) { score += 2; why.push(p.g === 'F' ? '여성용' : '남성용'); }
+    res.push({ p, score, why });
+  }
+  res.sort((a, b) => b.score - a.score || a.p.p - b.p.p);
+
+  // 카테고리별로 묶어서 보여주기
+  const byCat = {};
+  res.forEach(r => (byCat[r.p.c] ||= []).push(r));
+  const parts = Object.keys(CATEGORIES).filter(k => byCat[k]).map(k => `
+    <div class="result-head"><h2>${CATEGORIES[k].icon} ${CATEGORIES[k].label}</h2><span>${byCat[k].length}개</span></div>
+    <div class="grid">${byCat[k].map(r => card(r.p, r.why)).join('')}</div>`);
+  $('#recOut').innerHTML = parts.length ? parts.join('') :
+    `<div class="empty">조건에 맞는 제품이 없어요. 예산이나 관심 분야를 넓혀 보세요.</div>`;
+  $('#recOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+$('#go').onclick = recommend;
+$('#reset').onclick = () => {
+  state.gender = null; state.cats.clear(); state.concerns.clear();
+  document.querySelectorAll('#viewRec .chip.on').forEach(c => c.classList.remove('on'));
+  $('#age').value = ''; $('#budget').value = ''; $('#recOut').innerHTML = '';
+};
+
+// ── 전체 제품 ──
+function renderAll() {
+  const q = $('#q').value.trim().replace(/\s/g, ''), fc = $('#fCat').value, so = $('#fSort').value;
+  let list = PRODUCTS.filter(p => (!fc || p.c === fc) && (!q || (p.n + p.s + p.d).replace(/\s/g, '').includes(q)));
+  if (so === 'low') list = [...list].sort((a, b) => a.p - b.p);
+  if (so === 'high') list = [...list].sort((a, b) => b.p - a.p);
+  $('#allCount').textContent = `${list.length}개`;
+  $('#allGrid').innerHTML = list.map(p => card(p)).join('') || `<div class="empty">검색 결과가 없어요.</div>`;
+}
+['#q', '#fCat', '#fSort'].forEach(s => $(s).addEventListener('input', renderAll));
+
+// ── 탭 ──
+function tab(name) {
+  for (const t of ['Rec', 'All', 'Dose']) {
+    $('#tab' + t).classList.toggle('on', t === name);
+    $('#view' + t).hidden = t !== name;
+  }
+  if (name === 'All') renderAll();
+  if (name === 'Dose') renderDose();
+}
+$('#tabRec').onclick = () => tab('Rec');
+$('#tabAll').onclick = () => tab('All');
+$('#tabDose').onclick = () => tab('Dose');
+
+function renderDose() {
+  const q = $('#dq').value.trim().replace(/\s/g, '');
+  const list = PRODUCTS.filter(p => p.h && (!q || (p.n + p.s).replace(/\s/g, '').includes(q)));
+  $('#doseCount').textContent = `${list.length}개`;
+  $('#doseList').innerHTML = list.map(p => {
+    const dts = variants(p).map(v => { const d = daysOf(p, v); return d ? `${v.z} → 약 ${d}일` : ''; }).filter(Boolean);
+    return `<div class="dose-row"><div class="top"><b>${p.n}</b><span>p.${p.pg}</span></div>
+      <div class="how">${p.h}</div>${dts.length ? `<div class="days">${dts.join(' · ')}</div>` : ''}</div>`;
+  }).join('') || `<div class="empty">검색 결과가 없어요.</div>`;
+}
+$('#dq').addEventListener('input', renderDose);
+
+// ── 선택 ──
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.pick'); if (!btn) return;
+  const id = +btn.closest('.card').dataset.id;
+  const k = Object.keys(picks).find(k => k.startsWith(id + '|'));
+  if (k) delete picks[k];
+  else picks[`${id}|${chosenVariantFromCard(btn.closest('.card'))}`] = 1;
+  afterChange();
+});
+document.addEventListener('change', e => {
+  if (!e.target.classList.contains('vsel')) return;
+  const cardEl = e.target.closest('.card'), id = +cardEl.dataset.id, vi = +e.target.value;
+  const p = PRODUCTS[id], k = Object.keys(picks).find(k => k.startsWith(id + '|'));
+  if (k) { const q = picks[k]; delete picks[k]; picks[`${id}|${vi}`] = q; }
+  cardEl.querySelector('.price').innerHTML = `${won(variants(p)[vi].p)}<span class="size">${variants(p)[vi].z}</span>`;
+  const dose = cardEl.querySelector('.dose');
+  if (dose) dose.outerHTML = doseBlock(p, variants(p)[vi]);
+  cardEl.dataset.vi = vi;
+  afterChange(false);
+});
+function chosenVariantFromCard(el) { const s = el.querySelector('.vsel'); return s ? +s.value : 0; }
+
+function afterChange(rerender = true) {
+  save(); renderBar(); renderSheet();
+  if (!rerender) return;
+  document.querySelectorAll('.card').forEach(el => {
+    const id = +el.dataset.id, sel = Object.keys(picks).some(k => k.startsWith(id + '|'));
+    el.classList.toggle('sel', sel);
+    el.querySelector('.pick').textContent = sel ? '✓ 선택됨' : '+ 선택';
+  });
+}
+function pickLines() {
+  return Object.entries(picks).map(([k, q]) => {
+    const [id, vi] = k.split('|').map(Number), p = PRODUCTS[id];
+    if (!p) return null;
+    const v = variants(p)[vi] || variants(p)[0];
+    return { k, p, v, q };
+  }).filter(Boolean);
+}
+function renderBar() {
+  const ls = pickLines();
+  $('#barCount').textContent = ls.reduce((s, l) => s + l.q, 0);
+  $('#barTotal').textContent = won(ls.reduce((s, l) => s + l.v.p * l.q, 0));
+}
+function renderSheet() {
+  const ls = pickLines();
+  $('#lines').innerHTML = ls.length ? ls.map(l => `<div class="line" data-k="${l.k}">
+      <div class="nm">${l.p.n}<small>${l.v.z} · ${won(l.v.p)}</small>${l.p.h ? `<small>🕐 ${l.p.h}</small>` : ''}</div>
+      <div class="qty"><button data-d="-1">−</button><span>${l.q}</span><button data-d="1">+</button></div>
+      <div class="lp">${won(l.v.p * l.q)}</div></div>`).join('')
+    : `<div class="empty">아직 선택한 제품이 없어요.</div>`;
+  $('#sheetTotal').textContent = won(ls.reduce((s, l) => s + l.v.p * l.q, 0));
+}
+$('#lines').onclick = e => {
+  const b = e.target.closest('button[data-d]'); if (!b) return;
+  const k = b.closest('.line').dataset.k;
+  picks[k] += +b.dataset.d;
+  if (picks[k] <= 0) delete picks[k];
+  afterChange();
+};
+const openSheet = v => { $('#sheet').classList.toggle('open', v); $('#sheetBg').style.display = v ? 'block' : 'none'; };
+$('#openSheet').onclick = () => { renderSheet(); openSheet(true); };
+$('#closeSheet').onclick = $('#sheetBg').onclick = () => openSheet(false);
+$('#clearSel').onclick = () => { picks = {}; afterChange(); };
+$('#copySel').onclick = async () => {
+  const ls = pickLines(); if (!ls.length) return toast('선택한 제품이 없어요');
+  const total = ls.reduce((s, l) => s + l.v.p * l.q, 0);
+  const txt = ['[추천 제품 안내]', ...ls.map((l, i) =>
+      `${i + 1}. ${l.p.n} (${l.v.z}) ${won(l.v.p)}${l.q > 1 ? ` × ${l.q}` : ''}${l.p.h ? `\n   섭취: ${l.p.h}` : ''}${daysOf(l.p, l.v) ? ` (1통 약 ${daysOf(l.p, l.v)}일분)` : ''}${l.p.m ? `\n   ${l.p.m}` : ''}`),
+    `합계 ${won(total)}`, '※ 암웨이 카탈로그 Vol.75 기준, 가격은 변동될 수 있습니다.'].join('\n');
+  try { await navigator.clipboard.writeText(txt); toast('복사했어요. 메시지에 붙여넣기 하세요'); }
+  catch (e) { prompt('아래 내용을 복사하세요', txt); }
+};
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800); }
+
+renderBar();
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "맞춤 제품 가이드",
+  "short_name": "제품가이드",
+  "description": "나이와 고민에 맞는 암웨이 제품, 가격, 섭취 방법을 안내하는 앱",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#2f6b4f",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
