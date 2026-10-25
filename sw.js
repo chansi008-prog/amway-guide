@@ -1,6 +1,6 @@
-// 제품 가이드 서비스 워커: 앱 파일을 미리 저장해 오프라인에서도 열리게 한다
-const VERSION = "guide-v1";
-const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
+// 소비자 관리 앱 서비스 워커: 앱 파일을 미리 저장해 오프라인에서도 열리게 한다
+const VERSION = "guide-v2";
+const CORE = ["./", "index.html", "js/app.js", "js/logic.js", "js/store.js", "js/catalog.js", "js/sample.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -16,8 +16,18 @@ self.addEventListener("fetch", e => {
       .catch(() => caches.match("index.html")));
     return;
   }
-  // 아이콘 등: 저장본 우선
-  if (new URL(e.request.url).origin === location.origin) {
-    e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request)));
+  const url = new URL(e.request.url);
+  // 앱 코드: 네트워크 우선(업데이트 바로 반영), 오프라인이면 저장본
+  if (url.origin === location.origin && url.pathname.endsWith(".js") && !url.pathname.endsWith("sw.js")) {
+    e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(VERSION).then(x => x.put(e.request, c)); return r; })
+      .catch(() => caches.match(e.request)));
+    return;
+  }
+  // 아이콘·글꼴: 저장본 우선
+  if (url.origin === location.origin || url.host.endsWith("fonts.googleapis.com") || url.host.endsWith("fonts.gstatic.com")) {
+    e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(r => {
+      if (r.ok || r.type === "opaque") { const c = r.clone(); caches.open(VERSION).then(x => x.put(e.request, c)); }
+      return r;
+    })));
   }
 });
