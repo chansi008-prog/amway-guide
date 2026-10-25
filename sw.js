@@ -1,9 +1,9 @@
 // 소비자 관리 앱 서비스 워커: 앱 파일을 미리 저장해 오프라인에서도 열리게 한다
-const VERSION = "guide-v3";
-const CORE = ["./", "index.html", "js/app.js", "js/logic.js", "js/store.js", "js/catalog.js", "js/sample.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
+const VERSION = "guide-v4";
+const CORE = ["./", "index.html", "js/app.js", "js/logic.js", "js/store.js", "js/catalog.js", "js/sample.js", "manifest.webmanifest", "icons/icon-192-v2.png", "icons/icon-512-v2.png", "icons/apple-touch-icon-v2.png"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
